@@ -16,7 +16,7 @@ module.exports.registerUser= async function(req,res){
         // ✅ Password Hashing
         let salt = await bcrypt.genSalt(10);
         let hashedPassword = await bcrypt.hash(password, salt);
-console.log(hashedPassword)
+// console.log(hashedPassword)
         // ✅ Create new user
         let users = await userModel.create({
             fullname,
@@ -24,18 +24,35 @@ console.log(hashedPassword)
             password: hashedPassword,  // Save Hashed Password
         });
   let token =generateToken(users)
-//    let token=     jwt.sign({email,id:user._id},"heyheyheye")
    res.cookie("token",token)
-   res.send("user created sucesfully")
-
-        // ✅ Send Response
-        // res.status(201).json({
-        //     message: "User registered successfully!",
-        //     user: { id: user._id, fullname: user.fullname, email: user.email }
-        // });
-
+res.redirect("/shop")
+console.log("send")
+   
     } catch (error) {
         console.error("Error:", error);
         res.status(500).json({ error: "Internal Server Error" });
     }
 }
+module.exports.loginUser= async function(req,res){
+    let {email,password}=req.body
+let user =await userModel.findOne({email:email})
+console.log(user.password,"hi")
+if(!user) return res.send("email or password wrong")
+
+        bcrypt.compare(password,user.password,function(err,result){
+    console.log(result)})
+    if(result){
+        let token=generateToken(user)
+        res.cookie("token",token)
+        res.send("you can login")
+        
+    }
+    else{
+      return res.send("Email or Password Incorrect")
+        // return res.redirect("/")
+    }
+   
+
+}
+
+// // 
